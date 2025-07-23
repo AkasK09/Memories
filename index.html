@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In Loving Memory</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+  background: linear-gradient(-45deg, #2c3e50, #4b79a1, #283e51, #1f4037);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body.dark {
+  background: #111;
+  color: #eee;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  position: fixed;
+  width: 100%;
+  z-index: 10;
+}
+
+.setting-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 250px;
+  height: 100%;
+  background: #222;
+  color: white;
+  padding: 1rem;
+  transition: right 0.3s;
+  z-index: 20;
+}
+
+.settings-panel.open {
+  right: 0;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid #fff;
+  padding: 0.3rem 0.6rem;
+  color: #fff;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.toggle {
+  margin: 1rem 0;
+}
+
+.memory-container {
+  padding-top: 80px;
+}
+
+.memory {
+  margin: 2rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s, opacity 0.5s;
+  animation: fadeSlideUp 1s ease both;
+}
+
+body.dark .memory {
+  background: #333;
+}
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.memory img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  transition: transform 0.3s;
+}
+
+.memory img:hover {
+  transform: scale(1.03);
+}
+
+.memory-text {
+  font-size: 1rem;
+}
+
+.memory-text.editing {
+  border: 1px dashed gray;
+  padding: 0.5rem;
+  background: #f0f0f0;
+}
+
+.add-btn {
+  display: block;
+  margin: 2rem auto;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.add-btn:hover {
+  background: #0056b3;
+}
+
+.delete-btn {
+  background: red;
+  border: none;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+  </style>
+</head><body>
+  <div class="header">
+    <h2>In Loving Memory</h2>
+    <div class="setting-icon" onclick="toggleSettings()">⚙️</div>
+  </div>  <div id="settings" class="settings-panel">
+    <button class="back-btn" onclick="toggleSettings()">← Back</button>
+    <h3>Settings</h3>
+    <div class="toggle">
+      <label>
+        <input type="checkbox" onchange="toggleDarkMode(this)">
+        Dark Mode
+      </label>
+    </div>
+  </div>  <div class="memory-container" id="memoryContainer">
+    <!-- Memories will be injected here -->
+  </div><button class="add-btn" onclick="addMemory()">+ Add Story</button>
+
+  <script>
+    let darkMode = false;
+
+    function toggleSettings() {
+      const panel = document.getElementById('settings');
+      panel.classList.toggle('open');
+    }
+
+    function toggleDarkMode(el) {
+      darkMode = el.checked;
+      document.body.classList.toggle('dark', darkMode);
+    }
+
+    function addMemory() {
+      const container = document.getElementById('memoryContainer');
+      const div = document.createElement('div');
+      div.className = 'memory';
+      div.innerHTML = `
+        <input type="file" accept="image/*" onchange="loadImage(event, this)"><br>
+        <img src="" class="hidden"><br>
+        <p class="memory-text" ondblclick="enableEdit(this)">They were more than a case... they were a story, a smile, a light.</p>
+        <button class="delete-btn hidden" onclick="deleteMemory(this)">Delete</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function enableEdit(el) {
+      const newText = prompt("Edit memory:", el.innerText);
+      if (newText !== null) {
+        el.innerText = newText;
+      }
+    }
+
+    function loadImage(event, input) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = input.nextElementSibling;
+          img.src = e.target.result;
+          img.classList.remove('hidden');
+          img.nextElementSibling.nextElementSibling.classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function deleteMemory(btn) {
+      const memory = btn.parentElement;
+      memory.remove();
+    }
+  </script></body></html>
